@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid')
     let width = 10;
     let bombAmount = 20;
+    let flags = 0;
     let squares = [];
     let isGameOver = false;
 
@@ -22,8 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // normal click
             square.addEventListener('click', function(e) {
-                click(square);
+                click(square)
             })
+
+            // control and left click
+            square.oncontextmenu = function(e) {
+                e.preventDefault()
+                addFlag(square)
+            }
         }
 
         // add numbers
@@ -46,6 +53,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     createBoard()
+
+    // add Flag with right click
+    function addFlag(square) {
+        if (isGameOver) return
+        if (!square.classList.contains('checked') && (flags < bombAmount)) {
+            if (!square.classList.contains('flag')) {
+                square.classList.add('flag')
+                square.innerHTML = '🚩'
+                flags ++
+                checkForWin()
+            } else {
+                square.classList.remove('flag')
+                square.innerHTML = ''
+                flags --
+            }
+        }
+    }
+    
 
     // click on square actions
     function click(square) {
@@ -128,10 +153,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
     }
-    
 
-
-
-    
-
+    // check for win
+    function checkForWin() {
+    let matches = 0
+        for (let i = 0; i <squares.length; i++) {
+            if (squares[i].classList.contains('flag') && squares[i].classList.contains('bomb')) {
+                matches ++
+            }
+            if (matches === bombAmount) {
+                console.log('YOU WIN!')
+                isGameOver = true
+            }
+        }
+    }
 })
